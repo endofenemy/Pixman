@@ -22,7 +22,6 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_operation.*
 import java.io.ByteArrayOutputStream
-import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private var bitmap: Bitmap? = null              //Original Bitmap
     private val map = ArrayList<Bitmap?>()          // List Of Bitmap
     private lateinit var parent: LinearLayout
+    private var isOpacityAdded = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +59,11 @@ class MainActivity : AppCompatActivity() {
 
         // Add Opacity to 50%
         opacity.setOnClickListener {
-            image.setImageBitmap(utils.setOpacity(map[map.size - 1], map))
+            // ADD OPACITY ONLY ONCE
+            if (!isOpacityAdded) {
+                image.setImageBitmap(utils.setOpacity(map[map.size - 1], map))
+                isOpacityAdded = true
+            }
         }
 
         // Add Green Text to the center of image
@@ -71,8 +75,13 @@ class MainActivity : AppCompatActivity() {
         // Save Image To Local Storage -> DCIM Folder -> Pixman Folder -> Image file
         save.setOnClickListener {
             val result = utils.saveImage(map[map.size - 1])
+            // Result Will Tell if Image is saved successfully.
             if (result) {
                 Toast.makeText(this, "Image Saved", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, SplashActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                startActivity(intent)
+                finish()
             } else {
                 Toast.makeText(this, "Image Saved Failed", Toast.LENGTH_SHORT).show()
             }
@@ -87,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Method to Move Image Preview Screen
     private fun moveToNext() {
         val pairs: Array<Pair<View, String>?> =
             arrayOfNulls(1)
@@ -96,19 +106,20 @@ class MainActivity : AppCompatActivity() {
             ActivityOptions.makeSceneTransitionAnimation(this, *pairs)
 
         val stream = ByteArrayOutputStream()
-        map[map.size-1]?.compress(Bitmap.CompressFormat.JPEG, 50, stream)
+        map[map.size - 1]?.compress(Bitmap.CompressFormat.JPEG, 50, stream)
         val byteArray: ByteArray = stream.toByteArray()
 
         try {
             val intent = Intent(this, ImagePreview::class.java)
-            intent.putExtra("image",byteArray);
+            intent.putExtra("image", byteArray);
             startActivity(intent, options.toBundle())
-        }catch (e:Exception){
-            Toast.makeText(this,e.message,Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
         }
 
     }
 
+    // Method to Pick Image from Gallery
     private fun picImage() {
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -130,6 +141,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    // To Check Storage Permission is Given Or Not
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -148,6 +160,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    // Show Snackbar if Permission is not granted
     private fun showSnackbar() {
         snackbar = Snackbar.make(
             parent,
@@ -166,6 +180,7 @@ class MainActivity : AppCompatActivity() {
         }
         snackbar!!.show()
     }
+
 
     @SuppressLint("MissingSuperCall")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -199,6 +214,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    // Check if permission is given or not. If permision Granted, dismiss Snackbar.
     override fun onResume() {
         super.onResume()
         if (snackbar != null) {
@@ -208,7 +224,7 @@ class MainActivity : AppCompatActivity() {
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 snackbar!!.dismiss()
-            }else{
+            } else {
                 snackbar!!.show()
             }
         }

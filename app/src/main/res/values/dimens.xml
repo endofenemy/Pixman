@@ -2,4 +2,5 @@
 <resources>
     <dimen name="one_six">16dp</dimen>
     <dimen name="two_four">24dp</dimen>
+    <dimen name="four_eight">48dp</dimen>
 </resources>

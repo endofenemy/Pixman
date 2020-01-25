@@ -1,5 +1,13 @@
 # Pixman
-# This Application Contains Three Activities
+# Step to run application
+# 1. Clone this application
+# 2. Open Android studio and choose Existing androd sudio project.
+# 3. Select the cloning project
+# 4. Wait for building the project and Ready to use.
+
+
+
+# PIXMAN APP FUNCTIONALITIES
 # 1. Splash Activity with Zoom in animation 
 # 2. Main Activity Where user can pick image from gallery and perform following operations like 
 ## i.  flip horizontally -> Image will be flipped Horizontally, 
